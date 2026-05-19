@@ -1,7 +1,15 @@
 package com.example.os.Entity;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -15,10 +23,11 @@ public class payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long paymentId;
 
-    private double amount;
+    private Double amount;
+
     private String paymentStatus;
 
     @OneToOne
     @JoinColumn(name = "booking_id")
-    private booking booking;
+    private Booking booking;
 }

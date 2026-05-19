@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class booking {
+public class Booking {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,5 +20,5 @@ public class booking {
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
     private String bookingStatus;
-    private double totalAmount;
+    private Double totalAmount;
 }

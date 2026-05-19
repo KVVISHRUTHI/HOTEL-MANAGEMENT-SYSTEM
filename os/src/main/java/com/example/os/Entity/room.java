@@ -16,7 +16,7 @@ public class room {
     private Long roomId;
 
     private String roomType;
-    private double price;
+    private Double price;
     private String status;
 
     @ManyToOne

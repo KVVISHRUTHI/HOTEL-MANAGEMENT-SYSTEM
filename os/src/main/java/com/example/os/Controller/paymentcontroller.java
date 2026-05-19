@@ -9,6 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/payments")
+@CrossOrigin(origins = "*")
 public class paymentcontroller {
 
     @Autowired

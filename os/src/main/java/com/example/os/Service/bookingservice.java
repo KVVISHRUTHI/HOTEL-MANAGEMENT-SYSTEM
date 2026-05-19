@@ -1,6 +1,6 @@
 package com.example.os.Service;
 
-import com.example.os.Entity.booking;
+import com.example.os.Entity.Booking;
 import com.example.os.Repository.bookingrepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,12 +13,12 @@ public class bookingservice {
     @Autowired
     private bookingrepository repository;
 
-    public booking save(booking booking) {
+    public Booking save(Booking booking) {
         booking.setBookingStatus("CONFIRMED");
         return repository.save(booking);
     }
 
-    public List<booking> getAll() {
+    public List<Booking> getAll() {
         return repository.findAll();
     }
 }

@@ -18,9 +18,9 @@ public class cancellation {
     private Long cancellationId;
 
     private LocalDate cancellationDate;
-    private double refundAmount;
+    private Double refundAmount;
 
     @OneToOne
     @JoinColumn(name = "booking_id")
-    private booking booking;
+    private Booking booking;
 }

@@ -21,4 +21,12 @@ public class Booking {
     private LocalDate checkOutDate;
     private String bookingStatus;
     private Double totalAmount;
+
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    private customer customer;
+
+    @ManyToOne
+    @JoinColumn(name = "room_id")
+    private room room;
 }

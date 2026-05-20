@@ -1,106 +1,106 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api";
 
 function Hotels() {
-
   const [hotels, setHotels] = useState([]);
-
-  const [hotelName, setHotelName] = useState("");
-  const [location, setLocation] = useState("");
+  const [formData, setFormData] = useState({ hotelName: "", city: "", address: "" });
 
   useEffect(() => {
     fetchHotels();
   }, []);
 
   const fetchHotels = async () => {
-    const response = await axios.get(
-      "http://localhost:8080/hotels"
-    );
-
-    setHotels(response.data);
+    try {
+      const response = await api.get("/hotels");
+      setHotels(response.data);
+    } catch (error) {
+      console.error("Failed to fetch hotels", error);
+    }
   };
 
   const addHotel = async (e) => {
     e.preventDefault();
-
-    await axios.post(
-      "http://localhost:8080/hotels",
-      {
-        hotelName,
-        location,
-      }
-    );
-
-    setHotelName("");
-    setLocation("");
-
-    fetchHotels();
+    try {
+      await api.post("/hotels", {
+        hotelName: formData.hotelName,
+        city: formData.city,
+        address: formData.address,
+      });
+      setFormData({ hotelName: "", city: "", address: "" });
+      fetchHotels();
+    } catch (error) {
+      console.error("Failed to add hotel", error);
+    }
   };
 
   return (
-    <div>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-semibold text-slate-900">Hotels</h1>
+        <p className="mt-2 text-slate-600">Create and review hotels in your system.</p>
+      </div>
 
-      <h1 className="text-3xl font-bold mb-5">
-        Hotels
-      </h1>
-
-      <form
-        onSubmit={addHotel}
-        className="bg-white p-5 rounded shadow mb-5"
-      >
-
-        <div className="flex gap-3">
-
+      <form onSubmit={addHotel} className="card-shadow p-6">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <input
             type="text"
             placeholder="Hotel Name"
-            className="border p-2"
-            value={hotelName}
-            onChange={(e) =>
-              setHotelName(e.target.value)
-            }
+            className="field-input"
+            value={formData.hotelName}
+            onChange={(e) => setFormData({ ...formData, hotelName: e.target.value })}
+            required
           />
-
           <input
             type="text"
-            placeholder="Location"
-            className="border p-2"
-            value={location}
-            onChange={(e) =>
-              setLocation(e.target.value)
-            }
+            placeholder="City"
+            className="field-input"
+            value={formData.city}
+            onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+            required
           />
-
-          <button className="bg-blue-500 text-white px-5">
-            Add
+          <input
+            type="text"
+            placeholder="Address"
+            className="field-input"
+            value={formData.address}
+            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+          />
+          <button type="submit" className="action-btn">
+            Add Hotel
           </button>
-
         </div>
-
       </form>
 
-      <table className="w-full bg-white">
-
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="p-3">ID</th>
-            <th className="p-3">Hotel Name</th>
-            <th className="p-3">Location</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {hotels.map((hotel) => (
-            <tr key={hotel.hotelId}>
-              <td className="p-3">{hotel.hotelId}</td>
-              <td className="p-3">{hotel.hotelName}</td>
-              <td className="p-3">{hotel.location}</td>
+      <div className="overflow-hidden rounded-[32px] bg-white shadow-lg shadow-slate-400/10">
+        <table className="min-w-full border-separate border-spacing-0 text-left text-sm text-slate-700">
+          <thead className="bg-slate-100 text-slate-600">
+            <tr>
+              <th className="p-4">ID</th>
+              <th className="p-4">Hotel Name</th>
+              <th className="p-4">City</th>
+              <th className="p-4">Address</th>
             </tr>
-          ))}
-        </tbody>
-
-      </table>
-
+          </thead>
+          <tbody>
+            {hotels.length === 0 ? (
+              <tr>
+                <td colSpan="4" className="p-6 text-center text-slate-500">
+                  No hotels available yet.
+                </td>
+              </tr>
+            ) : (
+              hotels.map((hotel) => (
+                <tr key={hotel.hotelId} className="border-t border-slate-200 hover:bg-slate-50">
+                  <td className="p-4">{hotel.hotelId}</td>
+                  <td className="p-4">{hotel.hotelName}</td>
+                  <td className="p-4">{hotel.city}</td>
+                  <td className="p-4">{hotel.address}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

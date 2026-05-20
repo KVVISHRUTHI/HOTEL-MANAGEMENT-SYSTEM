@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api";
 
 function Rooms() {
-
   const [rooms, setRooms] = useState([]);
-
   const [formData, setFormData] = useState({
     roomType: "",
     price: "",
+    status: "Available",
     hotelId: "",
   });
 
@@ -16,113 +15,123 @@ function Rooms() {
   }, []);
 
   const fetchRooms = async () => {
-    const response = await axios.get(
-      "http://localhost:8080/rooms"
-    );
-
-    setRooms(response.data);
+    try {
+      const response = await api.get("/rooms");
+      setRooms(response.data);
+    } catch (error) {
+      console.error("Failed to fetch rooms", error);
+    }
   };
 
   const addRoom = async (e) => {
     e.preventDefault();
-
-    await axios.post(
-      "http://localhost:8080/rooms",
-      {
+    try {
+      await api.post("/rooms", {
         roomType: formData.roomType,
-        price: formData.price,
-
-        hotel: {
-          hotelId: formData.hotelId,
-        },
-      }
-    );
-
-    fetchRooms();
+        price: Number(formData.price),
+        status: formData.status,
+        hotel: { hotelId: Number(formData.hotelId) },
+      });
+      setFormData({ roomType: "", price: "", status: "Available", hotelId: "" });
+      fetchRooms();
+    } catch (error) {
+      console.error("Failed to add room", error);
+    }
   };
 
   return (
-    <div>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-semibold text-slate-900">Rooms</h1>
+        <p className="mt-2 text-slate-600">Track room inventory and pricing for each hotel.</p>
+      </div>
 
-      <h1 className="text-3xl font-bold mb-5">
-        Rooms
-      </h1>
-
-      <form
-        onSubmit={addRoom}
-        className="bg-white p-5 rounded shadow mb-5"
-      >
-
-        <div className="grid grid-cols-2 gap-3">
-
+      <form onSubmit={addRoom} className="card-shadow p-6" autoComplete="off">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <input
             type="text"
-            placeholder="Room Type"
-            className="border p-2"
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                roomType: e.target.value,
-              })
-            }
+            autoComplete="off"
+            placeholder="Room Type (e.g. Deluxe)"
+            className="field-input"
+            value={formData.roomType}
+            onChange={(e) => setFormData({ ...formData, roomType: e.target.value })}
+            required
           />
-
           <input
             type="number"
-            placeholder="Price"
-            className="border p-2"
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                price: e.target.value,
-              })
-            }
+            placeholder="Price per night"
+            className="field-input"
+            value={formData.price}
+            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+            required
           />
-
+          <select
+            className="field-input"
+            value={formData.status}
+            onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+          >
+            <option value="Available">Available</option>
+            <option value="Booked">Booked</option>
+            <option value="Maintenance">Maintenance</option>
+          </select>
           <input
             type="number"
             placeholder="Hotel ID"
-            className="border p-2"
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                hotelId: e.target.value,
-              })
-            }
+            className="field-input"
+            value={formData.hotelId}
+            onChange={(e) => setFormData({ ...formData, hotelId: e.target.value })}
+            required
           />
-
         </div>
-
-        <button className="bg-blue-500 text-white px-5 py-2 mt-4">
+        <button type="submit" className="action-btn mt-4">
           Add Room
         </button>
-
       </form>
 
-      <table className="w-full bg-white">
-
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="p-3">ID</th>
-            <th className="p-3">Room Type</th>
-            <th className="p-3">Price</th>
-          </tr>
-        </thead>
-
-        <tbody>
-
-          {rooms.map((room) => (
-            <tr key={room.roomId}>
-              <td className="p-3">{room.roomId}</td>
-              <td className="p-3">{room.roomType}</td>
-              <td className="p-3">₹{room.price}</td>
+      <div className="overflow-hidden rounded-[32px] bg-white shadow-lg shadow-slate-400/10">
+        <table className="min-w-full border-separate border-spacing-0 text-left text-sm text-slate-700">
+          <thead className="bg-slate-100 text-slate-600">
+            <tr>
+              <th className="p-4">ID</th>
+              <th className="p-4">Type</th>
+              <th className="p-4">Price</th>
+              <th className="p-4">Status</th>
+              <th className="p-4">Hotel</th>
             </tr>
-          ))}
-
-        </tbody>
-
-      </table>
-
+          </thead>
+          <tbody>
+            {rooms.length === 0 ? (
+              <tr>
+                <td colSpan="5" className="p-6 text-center text-slate-500">
+                  No rooms added yet.
+                </td>
+              </tr>
+            ) : (
+              rooms.map((room) => (
+                <tr key={room.roomId} className="border-t border-slate-200 hover:bg-slate-50">
+                  <td className="p-4">{room.roomId}</td>
+                  <td className="p-4">{room.roomType}</td>
+                  <td className="p-4">Rs {room.price}</td>
+                  <td className="p-4">
+                    <span
+                      className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${
+                        room.status === "Available"
+                          ? "bg-emerald-100 text-emerald-700"
+                          : room.status === "Booked"
+                          ? "bg-sky-100 text-sky-700"
+                          : "bg-amber-100 text-amber-700"
+                      }`}
+                    >
+                      {room.status}
+                    </span>
+                  </td>
+                  <td className="p-4">{room.hotel?.hotelName ?? `#${room.hotel?.hotelId ?? "—"}`}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
